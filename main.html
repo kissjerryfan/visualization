@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization of Factors Influencing Student Performance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .star-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .stars canvas {
+            display: block;
+        }
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px; /* 增加底部间距 */
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: white;
+            animation: fadeInDown 1s ease-in-out;
+            position: relative;
+            z-index: 2;
+        }
+        .team-info-container {
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px auto; /* 居中对齐 */
+            padding: 20px;
+            text-align: center;
+            max-width: 950px; /* 最大宽度限制 */
+            position: relative;
+            overflow: visible; /* 确保子元素可以超出容器 */
+        }
+        .team-members {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap; /* 不换行 */
+            gap: 50px; /* 设置成员之间的间距 */
+        }
+        .team-member {
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 300px);
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        .member-link {
+            width: calc(33.33% - 40px); /* 每行三个，减去间距 */
+            height: 150px; /* 统一高度 */
+            margin: 10px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: bounceIn 1s ease-in-out;
+        }
+        .member-link:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .member-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom right, rgba(0, 123, 255, 0), rgba(0, 123, 255, 0.2));
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .member-link:hover::before {
+            opacity: 1;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 2;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #007bff;
+            animation: rotateIn 1s ease-in-out;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translate3d(0, -100%, 0); }
+            to { opacity: 1; transform: none; }
+        }
+        @keyframes bounceIn {
+            from, 20%, 40%, 60%, 80%, to { animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000); }
+            0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(0.9, 0.9, 0.9); }
+            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(0.97, 0.97, 0.97); }
+            to { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+        @keyframes rotateIn {
+            from { transform-origin: center; transform: rotate3d(0, 0, 1, -200deg); opacity: 0; }
+            to { transform-origin: center; transform: none; opacity: 1; }
+        }
+        @media (max-width: 1200px) {
+            .member-link {
+                width: calc(50% - 40px); /* 每行两个 */
+            }
+        }
+        @media (max-width: 768px) {
+            .member-link {
+                width: 100%; /* 每行一个 */
+            }
+        }
+        /* 添加底部立体蒙版效果 */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8));
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .team-info-mask {
+            position: absolute;
+            bottom: -20px; /* 调整位置以覆盖到容器外 */
+            left: 0;
+            right: 0;
+            height: 20px; /* 高度可以根据需要调整 */
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8));
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="star-background">
+    <div class="stars"></div>
+</div>
+
+<header>
+    <h1>Data Visualization of Factors Influencing Student Performance</h1>
+</header>
+
+<div class="team-info-container">
+    <h2>Team Information</h2>
+    <h3>Group 03</h3>
+    <ul class="team-members">
+        <li class="team-member">Fan Jiayu</li>
+        <li class="team-member">Feng Binhao</li>
+        <li class="team-member">Liu Mohan</li>
+        <li class="team-member">Liu Ruqian</li>
+        <li class="team-member">Li Shuo</li>
+    </ul>
+    <div class="mask"></div>
+</div>
+
+<div class="container">
+    <div class="member-link">
+        <i class="fas fa-home icon"></i>
+        <a href="https://public.tableau.com/app/profile/jiayu.fan2724/viz/2_17315179808870/1_1?publish=yes">Family Factors 1</a>
+    </div>
+    <div class="member-link">
+        <i class="fas fa-home icon"></i>
+        <a href="https://public.tableau.com/app/profile/jiayu.fan2724/viz/2_17315179808870/2_1?publish=yes">Family Factors 2</a>
+    </div>
+    <div class="member-link">
+        <i class="fas fa-school icon"></i>
+        <a href="https://public.tableau.com/app/profile/shuo.li3276/viz/LS-7507/Dashboard1?publish=yes">School Factors</a>
+    </div>
+    <div class="mask"></div>
+    <div class="member-link">
+        <i class="fas fa-university icon"></i>
+        <a href="https://public.tableau.com/app/profile/mohan.liu6929/viz/EducationalEnviorment_on_StudentProgess/1_1?publish=yes">Educational Environment Factors</a>
+    </div>
+    <div class="member-link">
+        <i class="fas fa-heart-pulse icon"></i>
+        <a href="https://public.tableau.com/app/profile/ruqian.liu/viz/1_17324445625900/Dashboard1?publish=yes">Health Factors</a>
+    </div>
+    <div class="member-link">
+        <i class="fas fa-chalkboard-user icon"></i>
+        <a href="https://public.tableau.com/app/profile/binhao.feng/viz/comprison/comprison">In-Classroom Factors 1</a>
+    </div>
+    <div class="member-link">
+        <i class="fas fa-chalkboard-user icon"></i>
+        <a href="https://public.tableau.com/app/profile/binhao.feng/viz/attendance_17320184193770/PeerInfluence">In-Classroom Factors 2</a>
+    </div>
+</div>
+
+<script>
+    // Starfield effect
+    function createStars(container, numStars) {
+        const canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+
+        let ctx = canvas.getContext('2d');
+        let stars = [];
+        let w = window.innerWidth;
+        let h = window.innerHeight;
+
+        function resizeCanvas() {
+            w = window.innerWidth;
+            h = window.innerHeight;
+            canvas.width = w;
+            canvas.height = h;
+        }
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function generateStar() {
+            return {
+                x: random(0, w),
+                y: random(0, h),
+                size: random(0.5, 2),
+                speed: random(0.5, 2)
+            };
+        }
+
+        function drawStar(star) {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+
+        function updateStar(star) {
+            star.y += star.speed;
+            if (star.y > h) {
+                star.y = 0;
+                star.x = random(0, w);
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, w, h);
+            stars.forEach(updateStar);
+            stars.forEach(drawStar);
+            requestAnimationFrame(animate);
+        }
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push(generateStar());
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        animate();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const starContainer = document.querySelector('.stars');
+        createStars(starContainer, 100); // Adjust the number of stars as needed
+    });
+</script>
+
+</body>
+</html>
+
+
+
